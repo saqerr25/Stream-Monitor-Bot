@@ -21,6 +21,12 @@ class StreamGuard:
     def process(self, stream_url):
         if stream_url in self.safe_list:
             return "مستثنى"
+            # داخل دالة run_guard في reporter.py
+def run_guard(url, bot_instance):
+    driver = uc.Chrome()
+    bot_instance.current_driver = driver # ربط المتصفح بالبوت
+    # ... بقية الكود
+
         
         self.driver.get(stream_url)
         time.sleep(5)
