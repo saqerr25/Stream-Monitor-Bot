@@ -29,3 +29,17 @@ async def no_dangerous(ctx, url: str):
     await ctx.send("تمت إضافة البث لقائمة التجاهل.")
 
 bot.run(os.environ['DISCORD_TOKEN'])
+# أضف هذا الأمر في main.py
+@bot.command()
+async def warn(ctx, *, message: str = "تنبيه: محتوى مخالف، يرجى التوقف فوراً!"):
+    # نقوم بإرسال الرسالة إلى البوت (الموجود في كلاس المراقبة)
+    if hasattr(bot, 'current_driver'):
+        try:
+            chat_box = bot.current_driver.find_element(By.CSS_SELECTOR, "div#input")
+            chat_box.send_keys(message + Keys.ENTER)
+            await ctx.send(f"✅ تم إرسال التحذير إلى اليوتيوب: {message}")
+        except Exception as e:
+            await ctx.send(f"❌ فشل إرسال التحذير. تأكد من أن البوت يعمل: {e}")
+    else:
+        await ctx.send("❌ البوت غير متصل بأي بث حالياً. استخدم !start أولاً.")
+        
