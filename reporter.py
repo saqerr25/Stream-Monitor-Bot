@@ -1,28 +1,47 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 import time
+import undetected_chromedriver as uc
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
-def perform_report(url, reason):
-    print(f"جاري البلاغ عن الرابط: {url} لسبب: {reason}")
-    # هنا سنضع كود Selenium لاحقاً ليقوم بالعمل الفعلي
-    return True
+class StreamGuard:
+    def __init__(self, email, password):
+        self.driver = uc.Chrome()
+        self.safe_list = []
+        self.email = email
+        self.password = password
+        self.login()
 
-def send_warning_to_stream(stream_url, message):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless") # ليعمل في الخلفية
-    chrome_options.add_argument("--no-sandbox")
-    
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-    
-    try:
-        driver.get(stream_url)
-        time.sleep(5) # انتظار تحميل الصفحة
+    def login(self):
+        self.driver.get("https://accounts.google.com/signin")
+        self.driver.find_element(By.NAME, "identifier").send_keys(self.email + Keys.ENTER)
+        time.sleep(3)
+        self.driver.find_element(By.NAME, "Passwd").send_keys(self.password + Keys.ENTER)
+        time.sleep(5)
+
+    def process(self, stream_url):
+        if stream_url in self.safe_list:
+            return "مستثنى"
         
-        # هنا سنضع كود العثور على خانة الشات وكتابة الرسالة
-        # سأساعدك في تحديد الـ Selectors (العناصر) لاحقاً بناءً على المنصة
-        print(f"تمت محاولة إرسال: {message} إلى {stream_url}")
+        self.driver.get(stream_url)
+        time.sleep(5)
         
-    finally:
-        driver.quit()
+        # التمييز بين الستريمر والمشاهد
+        is_streamer = "owner" in self.driver.page_source.lower()
+        msg = "تحذير: تم رصد محتوى مخالف."
+        if is_streamer:
+            msg += " If you didn't do anything and you think the bot sent this by mistake please sent 'no I didn't'"
+
+        # إرسال 4 رسائل كل 10 ثواني
+        for i in range(4):
+            try:
+                chat_box = self.driver.find_element(By.ID, "input")
+                chat_box.send_keys(msg + Keys.ENTER)
+            except: pass
+            time.sleep(10)
+            
+        # بلاغ واحد
+        try:
+            self.driver.find_element(By.ID, "report-button-id").click()
+        except: pass
+        
+        return "تمت المراقبة"
