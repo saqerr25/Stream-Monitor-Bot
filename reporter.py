@@ -26,17 +26,13 @@ def run_guard(url, bot_instance):
     driver = uc.Chrome()
     bot_instance.current_driver = driver # ربط المتصفح بالبوت
     # ... بقية الكود
-
-        
         self.driver.get(stream_url)
         time.sleep(5)
-        
         # التمييز بين الستريمر والمشاهد
         is_streamer = "owner" in self.driver.page_source.lower()
         msg = "تحذير: تم رصد محتوى مخالف."
         if is_streamer:
             msg += " If you didn't do anything and you think the bot sent this by mistake please sent 'no I didn't'"
-
         # إرسال 4 رسائل كل 10 ثواني
         for i in range(4):
             try:
