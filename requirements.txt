@@ -1,4 +1,4 @@
+undetected-chromedriver
 discord.py
 selenium
-webdriver-manager
-undetected-chromedriver
+python-dotenv
